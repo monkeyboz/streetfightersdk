@@ -1,0 +1,212 @@
+<script src="jquery-1.6.2.js"></script>
+<style>
+    #background{
+        background: #efefef;
+        height: 100px;
+        width: 1300px;
+        position: relative;
+        z-index: -5;
+    }
+    #player{
+        background: url("animations/SNES - Street Fighter Alpha II - Ryu.png");
+        width: 100px;
+        height: 150px;
+        position: absolute;
+        background-position: 0px 1587px;
+        z-index: -4;
+    }
+    .ryu{
+        background: url("animations/SNES - Street Fighter Alpha II - Ryu.png");
+    }
+    .projectile{
+        width: 100px;
+        height: 150px;
+        background-position: 0px 2008px;
+        position: absolute;
+        z-index: 0;
+    }
+    #debug{
+        z-index: 1;
+        position: absolute;
+    }
+    #animation_sheet{
+        position: relative;
+        top: 0px;
+    }
+    #animation_sheet img{
+        z-index: -1;
+    }
+    #animation_start_frame{
+        background: rgba(0,244,0,.3);
+        padding: 10px;
+        border: 1px solid rgba(0,244,0,.5);
+        width: 10px;
+        height: 100px;
+        position: absolute;
+        z-index: 5
+    }
+    #intheway{
+        background: #000;
+        height: 30px;
+        position: absolute;
+        bottom: 0px;
+        width: 10px;
+        height: 100px;
+        left: 900px;
+    }
+</style>
+<div id="background">
+    <div id="player"></div>
+    <div id="intheway"></div>
+    <div id="debug">
+        keycode: <span id="keycode"></span>
+    </div>
+</div>
+<div id="animation_sheet_holder">
+    <select name="animation_sheet">
+    </select>
+    <input type="button" name="create_new_animation" value="Create Animation"/>
+    <input type="button" name="complete_new_animation" value="Complete Animation"/>
+    <div id="animation_sheet">
+        <img src=""/>
+    </div>
+</div>
+<script>
+    var directory;
+    $.ajax({
+        url: "scan_directory.php",
+        success: function(html){
+            directory = $.parseJSON(html);
+            $('select[name="animation_sheet"]').html('<option>- Select Image -</option>');
+            for(var i = 0; i < directory.length; ++i){
+                $('select[name="animation_sheet"]').append("<option name='"+directory[i]+"'>"+directory[i]+"</option>");
+            }
+        }
+    })
+    $("select[name='animation_sheet']").change(function(){
+        $('#animation_sheet_holder').find('img').attr('src','animations/'+$(this).val());
+    });
+    $('input[name="create_new_animation"]').click(function(){
+        if($('#animation_sheet').find("#animation_start_frame").html() != null){
+            var animation_add = '<div class="animate_frame"></div>';
+            $("#animation_sheet > #animation_start_frame").append(animation_add);
+        } else {
+            var animationstart = '<div id="animation_start_frame" class="animation_holder"></div>';
+            $("#animation_sheet").append(animationstart);
+            $('#animation_start_frame').css('top','0px').css('left','0px');
+            var testing = true;
+            $('#animation_sheet').click(function(e){ 
+                if(testing == true){
+                    testing = false;
+                    $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+
+                    $('#animation_sheet').mousemove(function(e){
+                        $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+                    });
+                } else {
+                    $('#animation_sheet').unbind('mousemove');
+                    testing = true;
+                }
+            });
+        }
+        return false;
+    })
+</script>
+<script>
+    var haduken = {"total":8,
+                    "sprite_position":2008,
+                    "frames":[{"position":-700,"width":59,"height":150},
+                                {"position":-767,"width":59,"height":150},
+                                {"position":-828,"width":81,"height":150},
+                                {"position":-904,"width":81,"height":150},
+                                {"position":-985,"width":81,"height":150},
+                                {"position":-1060,"width":81,"height":150},
+                                {"position":-1151,"width":81,"height":150},
+                                {"position":-1233,"width":81,"height":150}],
+                    "throw_position":{"sprite_position":2008},
+                    "throw_animation":[{"position":-1351,"width":71,"height":150},
+                                        {"position":-1427,"width":45,"height":150},
+                                        {"position":-1475,"width":59,"height":150},
+                                        {"position":-1536,"width":45,"height":150},
+                                        {"position":-1587,"width":59,"height":150},
+                                        {"position":-1648,"width":45,"height":150},
+                                        {"position":-1695,"width":71,"height":150},
+                                        {"position":-1759,"width":45,"height":150}],
+                    "collision_animation":[]
+                               };
+    var framerate = 10;
+    var keystring = '';
+    var keydown = setTimeout(function(){ },0);
+    function Ryu(){
+        this.powerMove = haduken;
+        this.powerMoveProjectile = true;
+        this.projectile = {"throw_position":this.powerMove.throw_position,"throw_animation":this.powerMove.throw_animation};
+        this.animated = false;
+        this.powerMoveCount = 0;
+    }
+    var ryu = new Ryu();
+    $(document).keydown(function(event) {
+        keystring += event.keyCode;
+        clearTimeout(keydown);
+        $('#keycode').html(keystring);
+        switch(keystring){
+            case "37403965":
+                ++powerMoves;
+                animation($("#player"),true,ryu,0,2500);
+                keystring = '';
+                break;
+            case "37403983":
+                ++powerMoves;
+                animation($("#player"),true,ryu,0,2000);
+                keystring = '';
+                break;
+            case "37403968":
+                ++powerMoves;
+                animation($("#player"),true,ryu,0,1000);
+                keystring = '';
+                break;
+        }
+        setTimeout(function(){ keystring = ""; $('#keycode').html(""); },500);
+    });
+    var powerMoves = 0;
+    function checkProjectile(projectile){
+        setTimeout(function(){ projectile.css('left'); },3);
+    }
+    function mainAnimationFunction(object,startPosition,animationArray,player,type,curr){
+        if(type != "projectile"){
+            player.animated = true;
+        }
+        if(curr == 0 && player.animate == true){
+            object.css("background-position",animationArray[curr].position+"px "+startPosition+"px").css("width",animationArray[curr].width);
+            setTimeout(function(){ mainAnimationFunction(object,startPosition,animationArray,player,type,curr); },1000/framerate);
+            ++curr;
+        } else if(curr < animationArray.length){
+            object.css("background-position",animationArray[curr].position+"px "+startPosition+"px").css("width",animationArray[curr].width);
+            setTimeout(function(){ mainAnimationFunction(object,startPosition,animationArray,player,type,curr); },1000/framerate);
+        } else {
+            if(type == "projectile"){
+                mainAnimationFunction(object,startPosition,animationArray,player,type,0);
+            } else {
+                curr = 0;
+                object.css("background-position",animationArray[curr].position+"px "+startPosition+"px").css("width",animationArray[curr].width);
+                player.animated = false;
+            }
+            return true;
+        }
+        ++curr;
+    }
+    function animation(object,start,player,curr,speed){
+        if(start === true){
+            player.animated = true;
+            mainAnimationFunction(object,player.powerMove.sprite_position,player.powerMove.frames,player,"powermove",curr);
+            setTimeout(function(){ 
+                $("#background").append("<div class='projectile ryu' id='ryu"+powerMoves+"'></div>");
+                var powermove = $("#ryu"+powerMoves);
+                powermove.css('left',$('#player').width());
+                powermove.animate({"left":$("#background").width()},speed,function(){ powermove.remove(); });    
+                mainAnimationFunction(powermove,player.projectile.throw_position.sprite_position,player.projectile.throw_animation,player,"projectile",0); },player.powerMove.frames.length*80);
+        } else {
+            
+        }
+    }
+</script>
