@@ -32,14 +32,13 @@
     #animation_sheet{
         position: relative;
         top: 0px;
+        overflow: hidden;
     }
     #animation_sheet img{
         z-index: -1;
     }
     #animation_start_frame{
-        background: rgba(0,244,0,.3);
-        padding: 10px;
-        border: 1px solid rgba(0,244,0,.5);
+        background: rgba(0,254,0,.3);
         width: 10px;
         height: 100px;
         position: absolute;
@@ -69,6 +68,18 @@
         opacity: .5;
         position: absolute;
     }
+    #animation_sheet_holder{
+        overflow: scroll;
+        width: 100%;
+        height: 100%;
+    }
+    .animation_holder{
+        height: 100px;
+        top: 0px;
+        position: absolute;
+        background: rgba(0,0,0,.3);
+        border: 1px solid #efefef;
+    }
 </style>
 <div id="background">
     <div id="player">
@@ -90,51 +101,7 @@
     </div>
 </div>
 <script>
-    var directory;
-    $.ajax({
-        url: "scan_directory.php",
-        success: function(html){
-            directory = $.parseJSON(html);
-            $('select[name="animation_sheet"]').html('<option>- Select Image -</option>');
-            for(var i = 0; i < directory.length; ++i){
-                $('select[name="animation_sheet"]').append("<option name='"+directory[i]+"'>"+directory[i]+"</option>");
-            }
-        }
-    })
-    $("select[name='animation_sheet']").change(function(){
-        $('#animation_sheet_holder').find('img').attr('src','animations/'+$(this).val());
-    });
-    $('input[name="create_new_animation"]').click(function(){
-        if($('#animation_sheet').find("#animation_start_frame").html() != null){
-            var animation_add = '<div class="animate_frame"></div>';
-            $("#animation_sheet > #animation_start_frame").append(animation_add);
-        } else {
-            var animationstart = '<div id="top_level"></div><div id="animation_start_frame" class="animation_holder"></div><div id="bottom_level"></div>';
-            $("#animation_sheet").append(animationstart);
-            $('#animation_start_frame').css('top','0px').css('left','0px');
-            var testing = true;
-            $('#animation_sheet').click(function(e){
-                if(testing == true){
-                    testing = false;
-                    $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
-                    $('#animation_sheet').mousemove(function(e){
-                        $('#animation_start_frame').css('width',e.pageX).css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
-                        $('#top_level').css('height',e.pageY-$('#animation_start_frame').height()*2);
-                        $('#bottom_level').css('height',$('#animation_sheet').height()-e.pageY+20).css('top',e.pageY-$('#animation_start_frame').height()+20);
-                    });
-                } else {
-                    $('#animation_sheet').unbind('mousemove');
-                    testing = true;
-                }
-                $('#top_level').click(function(){
-                    $(this).html();
-                })
-            });
-        }
-        return false;
-    })
-</script>
-<script>
+    var standing = {};
     var haduken = {"total":8,
                     "sound": document.getElementById('powerMoveSound'),
                     "sprite_position":2008,
@@ -161,6 +128,7 @@
     var keystring = '';
     var keydown = setTimeout(function(){ },0);
     function Ryu(){
+        this.standing = standing;
         this.powerMove = haduken;
         this.powerMoveProjectile = true;
         this.projectile = {"throw_position":this.powerMove.throw_position,"throw_animation":this.powerMove.throw_animation};
@@ -200,14 +168,14 @@
                 var collisionPosition = collisionPosition - 100;
                 
                 if(projectilePosition > collisionPosition){
-                    projectile.remove();//alert("hit");
+                    projectile.remove();
                 } else {
                     
                 }
             },0);
     }
     function mainAnimationFunction(object,startPosition,animationArray,player,type,curr){
-        if(type != "projectile"){
+        if(type != "projectile" || type != "standing"){
             player.animated = true;
         } else {
             checkProjectile(object);
@@ -220,7 +188,7 @@
             object.css("background-position",animationArray[curr].position+"px "+startPosition+"px").css("width",animationArray[curr].width);
             setTimeout(function(){ mainAnimationFunction(object,startPosition,animationArray,player,type,curr); },1000/framerate);
         } else {
-            if(type == "projectile"){
+            if(type == "projectile" || type == "standing"){
                 mainAnimationFunction(object,startPosition,animationArray,player,type,0);
             } else {
                 curr = 0;
@@ -236,6 +204,7 @@
             player.animated = true;
             mainAnimationFunction(object,player.powerMove.sprite_position,player.powerMove.frames,player,"powermove",curr);
             
+            
             setTimeout(function(){ 
                 player.powerMove.sound.pause();
                 player.powerMove.sound.currentTime = 0;
@@ -250,4 +219,94 @@
             
         }
     }
+</script>
+<script>
+    var directory;
+    var currPosition;
+    var holder = 0;
+    $.ajax({
+        url: "scan_directory.php",
+        success: function(html){
+            directory = $.parseJSON(html);
+            $('select[name="animation_sheet"]').html('<option>- Select Image -</option>');
+            for(var i = 0; i < directory.length; ++i){
+                $('select[name="animation_sheet"]').append("<option name='"+directory[i]+"'>"+directory[i]+"</option>");
+            }
+        }
+    })
+    $("select[name='animation_sheet']").change(function(){
+        $('#animation_sheet_holder').find('img').attr('src','animations/'+$(this).val());
+    });
+    var standing;
+    $('input[name="complete_new_animation"]').click(function(){
+        var count = 0;
+        var frames = new Array();
+        var yPosition = 0;
+        $('#animation_sheet > .animation_holder').each(function(){
+            if($(this).css("width") != '0px'){
+                if(yPosition < $(this).css('top')){
+                    yPosition = $(this).css('top');
+                }
+                frames[count] = {"position":-$(this).css('left').replace('px',''),"width":$(this).css('width').replace('px',''),"height":150},
+            
+                ++count;
+            }
+        });
+        frames.shift();
+        standing = {"total":count,
+            "sprite_position": yPosition,
+            "frames": frames,
+        };
+        var ryu = new Ryu();
+        mainAnimationFunction($('#player'),ryu.standing.sprite_position,ryu.standing.frames,ryu,"standing",0);
+    })
+    $('input[name="create_new_animation"]').click(function(){
+        if($('#animation_sheet').find("#animation_start_frame").html() != null){
+            var animation_add = '<div class="animate_frame"></div>';
+            $("#animation_sheet > #animation_start_frame").append(animation_add);
+        } else {
+            var animationstart = '<div id="top_level"></div><div id="animation_start_frame" class="animation_holder"></div><div id="bottom_level"></div>';
+            $("#animation_sheet").append(animationstart);
+            $('#animation_start_frame').css('top','0px').css('left','0px');
+            var initial = true;
+            $('#animation_sheet').click(function(e){
+                if(initial == true){
+                    $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+                    $('#animation_sheet').mousemove(function(e){
+                        $('#animation_start_frame').css('width',e.pageX).css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+                        $('#top_level').css('height',e.pageY-$('#animation_start_frame').height()*2);
+                        $('#bottom_level').css('height',$('#animation_sheet').height()-e.pageY).css('top',e.pageY-$('#animation_start_frame').height());
+                    });
+                } else {
+                    $('#animation_sheet').unbind('mousemove');
+                    initial = true;
+                }
+                $('#top_level').click(function(){
+                    $(this).html();
+                })
+            });
+        }
+        
+        $('#animation_start_frame').click(function(){
+            if($('#holder'+holder) != undefined){
+                var holderPosition = 0;
+                //var holdLeft = $('#holder'+holder).css('left').replace('px','');
+                if($('#holder'+holder).css('left') != undefined){
+                    holderPosition = $(this).css('width').replace("px",'').replace('px','');
+                }
+                
+                if(holderPosition > currPosition){
+                    $('#holder'+holder).css('width',holderPosition-currPosition);
+                } else {
+                    $('#holder'+holder).css('width',holderPosition-currPosition);
+                }
+            }
+            ++holder;
+            currPosition = $(this).css('width').replace("px",'');
+            var layout = '<div class="animation_holder" id="holder'+holder+'"></div>';
+            $('#animation_sheet').append(layout);
+            $('#holder'+holder).css('left',currPosition+'px').css('top',$(this).css('top'));
+        });
+        return false;
+    })
 </script>
