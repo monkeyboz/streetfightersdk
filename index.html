@@ -244,8 +244,8 @@
         var yPosition = 0;
         $('#animation_sheet > .animation_holder').each(function(){
             if($(this).css("width") != '0px'){
-                if(yPosition < $(this).css('top')){
-                    yPosition = $(this).css('top');
+                if(yPosition < $(this).css('top').replace('px','')){
+                    yPosition = $(this).css('top').replace('px','');
                 }
                 frames[count] = {"position":-$(this).css('left').replace('px',''),"width":$(this).css('width').replace('px',''),"height":150},
             
@@ -253,8 +253,9 @@
             }
         });
         frames.shift();
+        yPosition = yPosition - 30;
         standing = {"total":count,
-            "sprite_position": yPosition,
+            "sprite_position": -yPosition,
             "frames": frames,
         };
         var ryu = new Ryu();
