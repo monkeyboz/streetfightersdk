@@ -54,9 +54,26 @@
         height: 100px;
         left: 900px;
     }
+    #top_level{
+        width: 100%;
+        height: 1px;
+        background: #ababab;
+        opacity: .5;
+        position: absolute;
+        top: 0px;
+    }
+    #bottom_level{
+        width: 100%;
+        height: 1px;
+        background: #ababab;
+        opacity: .5;
+        position: absolute;
+    }
 </style>
 <div id="background">
-    <div id="player"></div>
+    <div id="player">
+        <div id="hit_box"></div>
+    </div>
     <div id="intheway"></div>
     <div id="debug">
         keycode: <span id="keycode"></span>
@@ -92,22 +109,26 @@
             var animation_add = '<div class="animate_frame"></div>';
             $("#animation_sheet > #animation_start_frame").append(animation_add);
         } else {
-            var animationstart = '<div id="animation_start_frame" class="animation_holder"></div>';
+            var animationstart = '<div id="top_level"></div><div id="animation_start_frame" class="animation_holder"></div><div id="bottom_level"></div>';
             $("#animation_sheet").append(animationstart);
             $('#animation_start_frame').css('top','0px').css('left','0px');
             var testing = true;
-            $('#animation_sheet').click(function(e){ 
+            $('#animation_sheet').click(function(e){
                 if(testing == true){
                     testing = false;
                     $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
-
                     $('#animation_sheet').mousemove(function(e){
-                        $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+                        $('#animation_start_frame').css('width',e.pageX).css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
+                        $('#top_level').css('height',e.pageY-$('#animation_start_frame').height()*2);
+                        $('#bottom_level').css('height',$('#animation_sheet').height()-e.pageY+20).css('top',e.pageY-$('#animation_start_frame').height()+20);
                     });
                 } else {
                     $('#animation_sheet').unbind('mousemove');
                     testing = true;
                 }
+                $('#top_level').click(function(){
+                    $(this).html();
+                })
             });
         }
         return false;
@@ -223,7 +244,7 @@
                 var powermove = $("#ryu"+powerMoves);
                 powermove.css('left',$('#player').width());
                 checkProjectile(powermove);
-                powermove.animate({"left":$("#background").width()},speed,function(){ powermove.remove(); });    
+                powermove.animate({"left":$("#background").width()},speed,"linear",function(){ powermove.remove(); });    
                 mainAnimationFunction(powermove,player.projectile.throw_position.sprite_position,player.projectile.throw_animation,player,"projectile",0); },player.powerMove.frames.length*80);
         } else {
             
