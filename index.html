@@ -62,6 +62,7 @@
         keycode: <span id="keycode"></span>
     </div>
 </div>
+<audio src="audio/VideoGame-StreetFighter-Ryu-Hadouken.mp3" id="powerMoveSound"></audio>
 <div id="animation_sheet_holder">
     <select name="animation_sheet">
     </select>
@@ -114,6 +115,7 @@
 </script>
 <script>
     var haduken = {"total":8,
+                    "sound": document.getElementById('powerMoveSound'),
                     "sprite_position":2008,
                     "frames":[{"position":-700,"width":59,"height":150},
                                 {"position":-767,"width":59,"height":150},
@@ -170,11 +172,24 @@
     });
     var powerMoves = 0;
     function checkProjectile(projectile){
-        setTimeout(function(){ projectile.css('left'); },3);
+        setTimeout(function(){
+                var projectilePosition = projectile.css("left").replace("px","");
+                var collisionPosition = $('#intheway').css("left").replace("px","");
+                var projectilePosition = projectilePosition - 100;
+                var collisionPosition = collisionPosition - 100;
+                
+                if(projectilePosition > collisionPosition){
+                    projectile.remove();//alert("hit");
+                } else {
+                    
+                }
+            },0);
     }
     function mainAnimationFunction(object,startPosition,animationArray,player,type,curr){
         if(type != "projectile"){
             player.animated = true;
+        } else {
+            checkProjectile(object);
         }
         if(curr == 0 && player.animate == true){
             object.css("background-position",animationArray[curr].position+"px "+startPosition+"px").css("width",animationArray[curr].width);
@@ -199,10 +214,15 @@
         if(start === true){
             player.animated = true;
             mainAnimationFunction(object,player.powerMove.sprite_position,player.powerMove.frames,player,"powermove",curr);
+            
             setTimeout(function(){ 
+                player.powerMove.sound.pause();
+                player.powerMove.sound.currentTime = 0;
+                player.powerMove.sound.play();
                 $("#background").append("<div class='projectile ryu' id='ryu"+powerMoves+"'></div>");
                 var powermove = $("#ryu"+powerMoves);
                 powermove.css('left',$('#player').width());
+                checkProjectile(powermove);
                 powermove.animate({"left":$("#background").width()},speed,function(){ powermove.remove(); });    
                 mainAnimationFunction(powermove,player.projectile.throw_position.sprite_position,player.projectile.throw_animation,player,"projectile",0); },player.powerMove.frames.length*80);
         } else {
