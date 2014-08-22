@@ -1,0 +1,90 @@
+    #background{
+        background: #efefef;
+        height: 100px;
+        width: 1300px;
+        position: relative;
+        z-index: -5;
+    }
+    #player{
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        background-position: 0px 1587px;
+        z-index: -4;
+        overflow: hidden;
+    }
+    .projectile{
+        width: 100px;
+        height: 150px;
+        background-position: 0px 2008px;
+        position: absolute;
+        z-index: 0;
+    }
+    #debug{
+        z-index: 1;
+        position: absolute;
+    }
+    #animation_sheet{
+        position: relative;
+        top: 0px;
+        overflow: hidden;
+    }
+    #animation_sheet img{
+        z-index: -1;
+    }
+    #animation_start_frame{
+        background: rgba(0,254,0,.3);
+        width: 10px;
+        height: 100px;
+        position: absolute;
+        z-index: 5
+    }
+    #intheway{
+        background: #000;
+        height: 30px;
+        position: absolute;
+        bottom: 0px;
+        width: 10px;
+        height: 100px;
+        left: 900px;
+    }
+    #top_level{
+        width: 100%;
+        height: 1px;
+        background: #ababab;
+        opacity: .5;
+        position: absolute;
+        top: 0px;
+    }
+    #bottom_level{
+        width: 100%;
+        height: 1px;
+        background: #ababab;
+        opacity: .5;
+        position: absolute;
+    }
+    #animation_sheet_holder{
+        overflow: scroll;
+        width: 100%;
+        height: 100%;
+    }
+    #player img{
+        position: absolute;
+    }
+    .animation_holder{
+        height: 100px;
+        top: 0px;
+        position: absolute;
+        background: rgba(0,0,0,.3);
+        border: 1px solid #efefef;
+    }
+    #animations{
+        display: none;
+        background: #000;
+        color: #fff;
+        padding: 5px;
+        font-size: 5px;
+    }
+    .curr_animation{
+        
+    }
