@@ -4,6 +4,38 @@
 <script src="js/sdk.js"></script>
 <link href="css/styles.css" type="text/css" rel="stylesheet"/>
 <div class="overlay"></div>
+<div id="navigation">
+    <a href="" id="background_nav">Set Stages</a>
+    <a href="" id="move_list_nav">Move List</a>
+    <a href="" id="games">Game List</a>
+</div>
+<script>
+    function loadAjax(url,data){
+        var layout;
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: data,
+            success: function(html){
+                layout = html;
+            }
+        })
+        return layout;
+    }
+    $('#navigation > a').each(function(){
+        switch($(this).att('id')){
+            case 'background_nav':
+                break;
+            case 'move_list_nav':
+                break;
+            case 'games':
+                break;
+            default:
+                
+                break;
+        }
+    });
+</script>
 <div id="animations">
     <div class="curr_animation"></div>
 </div>
@@ -17,7 +49,6 @@
         keycode: <span id="keycode"></span>
     </div>
 </div>
-<audio src="audio/VideoGame-StreetFighter-Ryu-Hadouken.mp3" id="powerMoveSound"></audio>
 <div id="animation_sheet_holder">
     <select name="animation_sheet">
     </select>

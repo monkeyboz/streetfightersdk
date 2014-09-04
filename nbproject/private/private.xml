@@ -4,8 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/var/www/html/streetfighter/index.html</file>
-            <file>file:/var/www/html/streetfighter/testing.html</file>
-            <file>file:/var/www/html/streetfighter/scan_directory.php</file>
+            <file>file:/var/www/html/streetfighter/displaySettings.php</file>
+            <file>file:/var/www/html/streetfighter/js/sdk.js</file>
+            <file>file:/var/www/html/streetfighter/js/base.js</file>
+            <file>file:/var/www/html/streetfighter/js/fighter.js</file>
         </group>
     </open-files>
 </project-private>

@@ -3,6 +3,7 @@ $(document).ready(function(){
     var directory;
     var currPosition;
     var holder = 0;
+    var mostMouse = 0;
     //scans directory for images to be used for animations. This will later use user login information
     //as well as other various options to know exactly where the animation sheets are stored, and which
     //animation sheets are being used.
@@ -71,15 +72,27 @@ $(document).ready(function(){
             $("#animation_sheet").append(animationstart);
             $('#animation_start_frame').css('top','0px').css('left','0px');
             var initial = true;
+            var currMouse = 0;
             //once animation is clicked, there should be an initial, if initial is not
             //created make sure that it is stored
             $('#animation_sheet').click(function(e){
+                currMouse = e.pageY;
                 if(initial == true){
                     $('#animation_start_frame').css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
                     $('#animation_sheet').mousemove(function(e){
                         $('#animation_start_frame').css('width',e.pageX).css('left',e.pageX-$('#animation_start_frame').width()).css('top',e.pageY-($('#animation_start_frame').height()*2));
                         $('#top_level').css('height',e.pageY-$('#animation_start_frame').height()*2);
-                        $('#bottom_level').css('height',$('#animation_sheet').height()-e.pageY).css('top',e.pageY-$('#animation_start_frame').height());
+                        
+                        if($('#holder'+holder) != undefined && mostMouse < $('#holder'+holder).css('top').replace('px','')){
+                            mostMouse = $('#holder'+holder).css('top').replace('px','');
+                        }
+                        $('#debug').html(mostMouse+" "+e.pageY);
+                        if(mostMouse < e.pageY){
+                            $('#bottom_level').css('height',$('#animation_sheet').height()-mostMouse).css('top',mostMouse-$('#animation_start_frame').height());
+                        }
+                        if(currMouse > e.pageY - $('#top_level').css('top').replace('px','')){
+                            $('#top_level').css('height',e.pageY-$('#animation_start_frame').height()*2);
+                        }
                     });
                 } else {
                     $('#animation_sheet').unbind('mousemove');
@@ -111,6 +124,7 @@ $(document).ready(function(){
             currPosition = $(this).css('width').replace("px",'');
             var layout = '<div class="animation_holder" id="holder'+holder+'"></div>';
             $('#animation_sheet').append(layout);
+            
             $('#holder'+holder).css('left',currPosition+'px').css('top',$(this).css('top'));
         });
         return false;
